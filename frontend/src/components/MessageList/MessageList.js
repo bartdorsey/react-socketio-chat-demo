@@ -1,45 +1,63 @@
-import React, { useEffect } from 'react';
-import { baseUrl } from '../../config';
+import React, { useEffect, useRef } from 'react';
+import { apiUrl } from '../../config';
 import { useDispatch, useSelector } from 'react-redux';
-import { addMessages } from '../../redux/actions/messages';
+import { setMessages } from '../../redux/actions/messages';
 import styles from './MessageList.module.css';
 import moment from 'moment';
 
-console.log(styles);
-const MessageList = ({currentChannel}) => {
-    const messages = useSelector(state => state.messages);
+const MessageList = () => {
+    // Use the currentChannel and messages from Redux
+    const currentChannel = useSelector(state => state.channels.currentChannel);
+    const messages = useSelector(state => state.messages[currentChannel]);
     const dispatch = useDispatch();
+    const messageElement = useRef(null);
 
     useEffect(() => {
+        if (messageElement.current) {
+            messageElement.current.scrollIntoView();
+        }
+    });
+
+    // Fetch the list of messages for a channel
+    useEffect(() => {
+        // If there's no current channel, there's nothing
+        // to do, so just return
         if (!currentChannel) {
             return;
         }
-        let messages = [];
+
         (async () => {
-        try {
-            const response = await fetch(
-                `${baseUrl}/channels/${currentChannel}/messages`
-            );
-            if (!response.ok) {
-                throw new Error("Response not okay");
+            try {
+                const response = await fetch(
+                    `${apiUrl}/channels/${currentChannel}/messages`
+                );
+                if (!response.ok) {
+                    throw new Error("Response not okay");
+                }
+                const channel = await response.json();
+                dispatch(setMessages(channel.Messages, channel));
+            } catch (e) {
+                console.error(e);
             }
-            messages = await response.json();
-        } catch (e) {
-            console.error(e);
-        }
-        dispatch(addMessages(messages));
         })();
     }, [currentChannel, dispatch]);
 
+    // If there's no current Channel, just render nothing
     if (!currentChannel) {
         return null;
     }
 
-    const renderMessages = messages => (
-        messages.map(message => {
+    //A helper function to render the list of messages
+    const renderMessages = messages => {
+        if (!messages) {
+            return null;
+        }
+        return messages.map(message => {
+            // format the date with moment.js
             const date = moment(message.createdAt).format('hh:mm:ss');
+            // Render a single message
             return (
-              <li className={styles.message} key={message.id}>
+              <li ref={messageElement} className={styles.message} key={message.id}>
                 <h4 className={styles.nickName}>
                   {message.nickName}
                   <span className={styles.date}>{date}</span>
@@ -48,8 +66,9 @@ const MessageList = ({currentChannel}) => {
               </li>
             );
         })
-    );
+    };
 
+    // Render the component
     return (
         <ul className={styles.list}>
             {renderMessages(messages)}

@@ -1,16 +1,17 @@
 export const ADD_MESSAGE = 'ADD_MESSAGE';
-export const ADD_MESSAGES = 'ADD_MESSAGES';
+export const SET_MESSAGES = 'SET_MESSAGES';
 
-export const addMessage = message => {
+export const addMessage = (message) => {
     return ({
         type: ADD_MESSAGE,
         message
     });
 }
 
-export const addMessages = messages => {
+export const setMessages = (messages, channel) => {
     return ({
-        type: ADD_MESSAGES,
-        messages
+        type: SET_MESSAGES,
+        messages,
+        channel
     });
 }
