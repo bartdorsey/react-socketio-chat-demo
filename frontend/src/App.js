@@ -1,79 +1,101 @@
 import React, { useState, useEffect } from 'react';
 // Redux
-// import { useDispatch, useSelector } from 'react-redux';
-// import { addMessage } from './store/actions';
+import { useDispatch } from 'react-redux';
+import { addMessage } from './redux/actions/messages';
+import MessageList from './components/MessageList';
+import ChannelButtons from './components/ChannelButtons';
+import SendMessageForm from './components/SendMessageForm';
+import NickNameForm from './components/NickNameForm';
+
 import io from 'socket.io-client';
+import { baseUrl } from './config';
 
-const socket = io.connect('http://localhost:4000');
-
+const socket = io.connect(baseUrl);
 
 function App() {
-  const [message, setMessage] = useState('')
-  const [chat, setChat] = useState([]);
-  // Redux
-  // const dispatch = useDispatch();
-  // const messages = Object.values(useSelector(state => state.messages));
+  const [channels, setChannels] = useState([]);
+  const [nickName, setNickName] = useState('');
+  const [currentChannel, setCurrentChannel] = useState('');
+  const [channelsJoined, setChannelsJoined] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    socket.on('message', msg => {
-      setChat([...chat, msg]);
-    })
-  })
+    if (currentChannel) {
+      console.log(`Joining ${currentChannel}`);
+      socket.emit("join", currentChannel);
+    }
+  },[currentChannel]);
 
-  // Redux
-  // useEffect(() => {
-  //   socket.on('message', msg => {
-  //     dispatch(addMessage(msg));
-  //   })
-  // })
+  useEffect(() => {
+    (async() => {
+      try {
+        const response = await fetch(`${baseUrl}/channels`);
+        const channels = await response.json();
+        setChannels(channels);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, []);
 
+  useEffect(() => {
+    if (!channelsJoined.includes(currentChannel)) {
+      socket.on(currentChannel, (message) => {
+        console.log(
+          `Recieved new message for ${currentChannel}: ${message.text}`
+        );
+        dispatch(addMessage(message));
+      });
+      setChannelsJoined([
+        ...channelsJoined,
+        currentChannel
+      ]);
+    }
+  },[currentChannel, dispatch, channelsJoined]);
 
-  const onChange = e => {
-    setMessage(e.target.value);
-  }
-
-  // Redux
-  // const onChange = e => {
-  //   e.preventDefault();
-  //   setMessage(e.target.value);
-  // }
-
-  const onSubmit = async e => {
-    e.preventDefault();
-    socket.emit('message', message)
-    console.log(message);
-    const res = await fetch('http://localhost:4000/messages', {
-      method: "POST",
-      mode: "no-cors",
-      body: JSON.stringify(message),
-      headers: {
-        "Content-Type": "application/json",
-      },
+  const onMessage = message => {
+    socket.emit(currentChannel, {
+      message,
+      nickName
     });
-    let thing = await res.json();
-    console.log(thing);
-    setMessage('');
   }
 
-  const daChat = () => {
-    return chat.map((message, i) => {
-      return <div key={i}>
-        <pre>{message}</pre>
-      </div>
-    })
+  const joinChannel = channel => {
+    setCurrentChannel(channel.name);
   }
+
+  if (!nickName) {
+    return (
+      <main>
+        <NickNameForm onChange={setNickName}/>
+      </main>
+    )
+  }
+
+  const renderMessageView = () => {
+    if (currentChannel) {
+      return (
+        <div className="message-view">
+          <MessageList currentChannel={currentChannel} />
+          <SendMessageForm onMessage={onMessage} />
+        </div>
+      )
+    } else {
+      return <h1>Choose a Channel</h1>
+    }
+  }
+
   return (
-    <div className="app">
-      <form onSubmit={onSubmit}>
-        <h1>YOYOYOOYOY</h1>
-        <input onChange={onChange} type="text" value={message}></input>
-        <button type="submit">Send</button>
-      </form>
-      <div>
-        <h1>HEY LOOK IT'S WORDS</h1>
-        {daChat()}
+    <main>
+      <div className="sidebar">
+        <ChannelButtons
+          channels={channels}
+          currentChannel={currentChannel}
+          joinChannel={joinChannel}
+        />
       </div>
-    </div>
+      {renderMessageView()}
+    </main>
   );
 }
 

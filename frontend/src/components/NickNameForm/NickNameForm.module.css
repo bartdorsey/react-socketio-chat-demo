@@ -1,0 +1,20 @@
+.form {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    align-items: baseline;
+}
+
+.form input {
+    flex-grow: 1;
+    font-size: 18px;
+    border: 0;
+    margin: 10px;
+    padding: 10px;
+}
+
+.form label {
+    font-size: 18px;
+    margin: 10px;
+    padding: 10px;
+}

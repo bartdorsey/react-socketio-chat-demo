@@ -1,0 +1,17 @@
+.form {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form input {
+    flex-grow: 1;
+    font-size: 14px;
+    border: 0;
+}
+
+.form button {
+    background-color: #B4F8C8;
+    font-size: 14px;
+    border: 0;
+    padding: 10px;
+}

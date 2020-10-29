@@ -1,1 +1,28 @@
 /* TODO Add site wide styles */
+
+* {
+    font-family: sans-serif;
+}
+
+body {
+    background-color: #FBE7C6
+}
+
+.title {
+    font-size: 18px;
+}
+
+main {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-view {
+    flex-grow: 1
+}
