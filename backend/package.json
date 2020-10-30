@@ -9,6 +9,7 @@
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.6",
+    "per-env": "^1.0.2",
     "pg": "^8.4.2",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0",
@@ -19,8 +20,10 @@
     "dotenv-cli": "^4.0.0"
   },
   "scripts": {
+    "start:production": "node index.js",
+    "start:development": "nodemon -r dotenv/config index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -r dotenv/config index.js"
+    "start": "per-env"
   },
   "keywords": [],
   "author": "",
