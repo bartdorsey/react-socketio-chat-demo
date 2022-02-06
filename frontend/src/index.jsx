@@ -5,12 +5,10 @@ import configureStore from './redux/store';
 import './index.css';
 import App from './App';
 
-import { baseUrl } from "./config";
-
 import io from "socket.io-client";
 
 // create a new connection to the socket
-const socket = io.connect(baseUrl);
+const socket = io.connect(window.location.origin)
 
 socket.on('error', (error) => {
   console.error(error);

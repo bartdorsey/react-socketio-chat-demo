@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { addChannels, setCurrentChannel } from '../../redux/actions/channels';
-import { apiUrl } from "../../config";
 import styles from "./ChannelButtons.module.css";
 
 const ChannelButtons = () => {
@@ -14,7 +13,7 @@ const ChannelButtons = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch(`${apiUrl}/channels`);
+        const response = await fetch(`/api/channels`);
         const channels = await response.json();
         dispatch(addChannels(channels));
       } catch (e) {

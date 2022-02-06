@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { apiUrl } from '../../config';
 import { useDispatch, useSelector } from 'react-redux';
 import { setMessages } from '../../redux/actions/messages';
 import styles from './MessageList.module.css';
@@ -29,7 +28,7 @@ const MessageList = () => {
         (async () => {
             try {
                 const response = await fetch(
-                    `${apiUrl}/channels/${currentChannel}/messages`
+                    `/api/channels/${currentChannel}/messages`
                 );
                 if (!response.ok) {
                     throw new Error("Response not okay");
